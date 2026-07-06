@@ -1,0 +1,36 @@
+<div id="top-ribbon" {% if oob %}hx-swap-oob="outerHTML"{% endif %}>
+    {% if top_items %}
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4">{% if own %}Мой топ{% else %}Топ{% endif %}</h2>
+        <div id="top-list" class="flex flex-col gap-2 max-w-2xl">
+            {% for item in top_items %}
+            <div data-anime-id="{{ item.anime_id }}"
+                 class="appear flex items-center gap-4 bg-surface border border-edge rounded-md p-3
+                        transition-colors duration-200 hover:border-accent
+                        {% if own %}cursor-grab active:cursor-grabbing select-none{% endif %}"
+                 style="animation-delay: {{ loop.index0 * 30 }}ms">
+                <span class="top-num w-12 shrink-0 text-right text-4xl font-semibold text-primary/15 leading-none">{{ loop.index }}</span>
+                <div class="w-12 shrink-0 aspect-[2/3] bg-edge/40 rounded-md overflow-hidden">
+                    {% if item.anime.poster_url %}
+                    <img src="{{ item.anime.poster_url }}" alt="{{ item.anime.title }}" loading="lazy"
+                         class="w-full h-full object-cover">
+                    {% endif %}
+                </div>
+                <a href="/anime/{{ item.anime.mal_id }}"
+                   class="flex-1 min-w-0 truncate font-medium hover:text-accent transition-colors duration-150">
+                    {{ item.anime.title }}</a>
+                {% if item.score %}<span class="shrink-0 text-star text-sm">★ {{ item.score }}</span>{% endif %}
+                {% if own %}<span class="shrink-0 text-secondary/50 leading-none">⠿</span>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% elif own %}
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-2">Мой топ</h2>
+        <p class="text-sm text-secondary">Нажмите «В топ» на просмотренном тайтле во вкладке «Мои аниме» — соберите личный рейтинг лучшего.</p>
+    </section>
+    {% else %}
+    <p class="text-secondary py-8">Топ пока пуст.</p>
+    {% endif %}
+</div>

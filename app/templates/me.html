@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Мой профиль — AnimeList{% endblock %}
+
+{% block content %}
+<div x-data="{ editing: {{ 'true' if saved else 'false' }} }" class="mb-8">
+    <div class="flex items-center gap-5">
+        {% if profile_user.avatar_url %}
+        <img src="{{ profile_user.avatar_url }}" alt="{{ profile_user.username }}"
+             class="w-20 h-20 rounded-full object-cover border border-edge">
+        {% else %}
+        <div class="w-20 h-20 rounded-full bg-surface border border-edge flex items-center justify-center
+                    text-2xl font-semibold text-secondary">{{ profile_user.username[0]|upper }}</div>
+        {% endif %}
+        <div class="min-w-0">
+            <h1 class="text-2xl font-semibold">{{ profile_user.username }}</h1>
+            <p class="text-sm text-secondary">на AnimeList с {{ profile_user.created_at.strftime('%d.%m.%Y') }}</p>
+            {% if profile_user.bio %}<p class="text-sm text-secondary mt-1.5 max-w-xl">{{ profile_user.bio }}</p>{% endif %}
+            <div class="mt-2 text-sm">
+                <button @click="editing = !editing"
+                        class="text-accent hover:brightness-110 transition duration-150"
+                        x-text="editing ? 'Скрыть редактирование' : 'Редактировать профиль'"></button>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="editing" x-transition.opacity.duration.150ms x-cloak class="mt-6 max-w-xl">
+        {% if saved %}
+        <p class="mb-4 text-sm text-accent bg-accent/10 border border-accent/30 rounded-md px-3 py-2">Сохранено</p>
+        {% endif %}
+        <form method="post" action="/me" class="space-y-4 bg-surface border border-edge rounded-md p-5">
+            <div>
+                <label class="block text-sm text-secondary mb-1.5">Ссылка на аватар</label>
+                <input name="avatar_url" value="{{ profile_user.avatar_url or '' }}" placeholder="https://…"
+                       class="w-full bg-page border border-edge rounded-md px-4 py-2.5 placeholder-secondary
+                              outline-none focus:border-accent transition-colors duration-150">
+            </div>
+            <div>
+                <label class="block text-sm text-secondary mb-1.5">О себе</label>
+                <textarea name="bio" rows="4" placeholder="Пара слов о себе…"
+                          class="w-full bg-page border border-edge rounded-md px-4 py-2.5 placeholder-secondary
+                                 outline-none focus:border-accent transition-colors duration-150 resize-y">{{ profile_user.bio or '' }}</textarea>
+            </div>
+            <button class="bg-accent text-page font-semibold rounded-md px-6 py-2.5
+                           hover:brightness-110 transition duration-150">Сохранить</button>
+        </form>
+    </div>
+</div>
+
+<div x-data="{ tab: 'top' }">
+    <div class="flex gap-6 border-b border-edge mb-6">
+        <button @click="tab = 'top'"
+                :class="tab === 'top' ? 'border-accent text-primary' : 'border-transparent text-secondary hover:text-primary'"
+                class="pb-2.5 -mb-px border-b-2 text-sm font-medium transition-colors duration-150">Топ</button>
+        <button @click="tab = 'list'"
+                :class="tab === 'list' ? 'border-accent text-primary' : 'border-transparent text-secondary hover:text-primary'"
+                class="pb-2.5 -mb-px border-b-2 text-sm font-medium transition-colors duration-150">Мои аниме</button>
+    </div>
+    <div x-show="tab === 'top'">{% include "_top_ribbon.html" %}</div>
+    <div x-show="tab === 'list'" x-cloak>{% include "_profile_body.html" %}</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script>
+function initTopSortable() {
+    const list = document.getElementById('top-list');
+    if (!list || list.dataset.sortable) return;
+    list.dataset.sortable = '1';
+    new Sortable(list, {
+        animation: 150,
+        onEnd: () => {
+            const ids = [...list.querySelectorAll('[data-anime-id]')].map(el => Number(el.dataset.animeId));
+            fetch('/me/top/reorder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(ids),
+            }).then(response => {
+                if (!response.ok) throw new Error();
+                list.querySelectorAll('.top-num').forEach((el, i) => el.textContent = i + 1);
+                window.dispatchEvent(new CustomEvent('toast', { detail: { value: 'Порядок сохранён' } }));
+            }).catch(() => {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { value: 'Не удалось сохранить порядок' } }));
+            });
+        },
+    });
+}
+document.addEventListener('DOMContentLoaded', initTopSortable);
+document.body.addEventListener('htmx:afterSwap', initTopSortable);
+document.body.addEventListener('htmx:oobAfterSwap', initTopSortable);
+</script>
+{% endblock %}

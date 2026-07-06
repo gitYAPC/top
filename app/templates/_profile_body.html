@@ -1,0 +1,65 @@
+<div class="flex flex-wrap gap-3 mb-10">
+    <div class="bg-surface border border-edge rounded-md px-5 py-3">
+        <p class="text-xl font-semibold">{{ stats.total }}</p>
+        <p class="text-xs text-secondary mt-0.5">тайтлов</p>
+    </div>
+    <div class="bg-surface border border-edge rounded-md px-5 py-3">
+        <p class="text-xl font-semibold text-star">{{ '%.1f'|format(stats.avg_score) if stats.avg_score else '—' }}</p>
+        <p class="text-xs text-secondary mt-0.5">средняя оценка</p>
+    </div>
+    <div class="bg-surface border border-edge rounded-md px-5 py-3">
+        <p class="text-xl font-semibold">{{ stats.episodes }}</p>
+        <p class="text-xs text-secondary mt-0.5">эпизодов просмотрено</p>
+    </div>
+</div>
+
+<div x-data="{ filter: 'all' }">
+    <div class="flex flex-wrap gap-2 mb-6">
+        <button @click="filter = 'all'"
+                :class="filter === 'all' ? 'border-accent text-primary' : 'border-edge text-secondary hover:text-primary'"
+                class="px-3 py-1.5 text-sm border rounded-md bg-surface transition-colors duration-150">
+            Все · {{ stats.total }}
+        </button>
+        {% for status, label in statuses.items() %}
+        <button @click="filter = '{{ status.value }}'"
+                :class="filter === '{{ status.value }}' ? 'border-accent text-primary' : 'border-edge text-secondary hover:text-primary'"
+                class="px-3 py-1.5 text-sm border rounded-md bg-surface transition-colors duration-150">
+            <span class="inline-block w-2 h-2 rounded-full bg-{{ status.value }} mr-1"></span>{{ label }} · {{ stats.counts.get(status, 0) }}
+        </button>
+        {% endfor %}
+    </div>
+
+    {% if items %}
+    <div class="anime-grid">
+        {% for item in items %}
+        <div x-show="filter === 'all' || filter === '{{ item.status.value }}'"
+             class="appear card-hover flex flex-col bg-surface border border-edge rounded-md overflow-hidden"
+             style="animation-delay: {{ loop.index0 * 30 }}ms">
+            <a href="/anime/{{ item.anime.mal_id }}" class="block aspect-[2/3] bg-edge/40">
+                {% if item.anime.poster_url %}
+                <img src="{{ item.anime.poster_url }}" alt="{{ item.anime.title }}" loading="lazy"
+                     class="w-full h-full object-cover">
+                {% endif %}
+            </a>
+            <div class="flex items-stretch flex-1">
+                <a href="/anime/{{ item.anime.mal_id }}" class="flex-1 min-w-0 p-3">
+                    <p class="text-sm font-medium leading-snug line-clamp-2">{{ item.anime.title }}</p>
+                    <p class="text-xs mt-1.5 flex items-center justify-between gap-2">
+                        <span class="flex items-center gap-1.5 text-secondary min-w-0">
+                            <span class="shrink-0 w-2 h-2 rounded-full bg-{{ item.status.value }}"></span>
+                            <span class="truncate">{{ statuses[item.status] }}</span>
+                        </span>
+                        {% if item.score %}<span class="text-star shrink-0">★ {{ item.score }}</span>{% endif %}
+                    </p>
+                </a>
+                {% if own and item.status.value == 'completed' %}
+                {% with anime = item.anime %}{% include "_top_toggle.html" %}{% endwith %}
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-secondary py-8">Список пока пуст.</p>
+    {% endif %}
+</div>

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Пользователи — AnimeList{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-semibold mb-6">Пользователи</h1>
+<div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));">
+    {% for user, count in users %}
+    <a href="/user/{{ user.username }}"
+       class="appear card-hover flex items-center gap-4 bg-surface border border-edge rounded-md p-4"
+       style="animation-delay: {{ loop.index0 * 30 }}ms">
+        {% if user.avatar_url %}
+        <img src="{{ user.avatar_url }}" alt="{{ user.username }}"
+             class="w-12 h-12 rounded-full object-cover border border-edge shrink-0">
+        {% else %}
+        <div class="w-12 h-12 rounded-full bg-page border border-edge flex items-center justify-center
+                    font-semibold text-secondary shrink-0">{{ user.username[0]|upper }}</div>
+        {% endif %}
+        <div class="min-w-0">
+            <p class="font-medium truncate">{{ user.username }}</p>
+            <p class="text-xs text-secondary mt-0.5">в списке: {{ count }}</p>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}

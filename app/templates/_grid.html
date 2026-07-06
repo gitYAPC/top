@@ -1,0 +1,24 @@
+{% if anime_list %}
+<div class="anime-grid">
+    {% for anime in anime_list %}
+    <a href="/anime/{{ anime.mal_id }}" class="appear card-hover block bg-surface border border-edge rounded-md overflow-hidden"
+       style="animation-delay: {{ loop.index0 * 30 }}ms">
+        <div class="aspect-[2/3] bg-edge/40">
+            {% if anime.poster_url %}
+            <img src="{{ anime.poster_url }}" alt="{{ anime.title }}" loading="lazy"
+                 class="w-full h-full object-cover">
+            {% endif %}
+        </div>
+        <div class="p-3">
+            <p class="text-sm font-medium leading-snug line-clamp-2">{{ anime.title }}</p>
+            <p class="text-xs text-secondary mt-1.5 flex items-center gap-2">
+                {% if anime.year %}<span>{{ anime.year }}</span>{% endif %}
+                {% if anime.score_mal %}<span class="text-star">★ {{ '%.1f'|format(anime.score_mal) }}</span>{% endif %}
+            </p>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-secondary py-8">Ничего не нашлось. Попробуйте другой запрос.</p>
+{% endif %}

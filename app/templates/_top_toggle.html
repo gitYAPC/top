@@ -1,0 +1,6 @@
+<button hx-post="/me/top/{{ anime.mal_id }}/toggle" hx-swap="outerHTML"
+        class="w-1/3 shrink-0 border-l text-xs font-medium transition-colors duration-200
+               {% if item.top_position %}bg-accent border-transparent text-page
+               {% else %}bg-ruby border-transparent text-primary hover:brightness-110{% endif %}">
+    {% if item.top_position %}В топе ✓{% else %}В топ{% endif %}
+</button>

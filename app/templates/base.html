@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}AnimeList{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        page: '#14181c',
+                        surface: '#1c2228',
+                        edge: '#2c3440',
+                        primary: '#e3e8ee',
+                        secondary: '#99aabb',
+                        accent: '#00c896',
+                        star: '#f5a623',
+                        ruby: '#e5484d',
+                        watching: '#00c896',
+                        completed: '#4a90d9',
+                        planned: '#9b6dd7',
+                        dropped: '#6b7280',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            },
+        };
+    </script>
+    <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        [x-cloak] { display: none !important; }
+        @view-transition { navigation: auto; }
+        .card-hover {
+            transition: transform 200ms ease-out, border-color 200ms ease-out, box-shadow 200ms ease-out;
+        }
+        .card-hover:hover {
+            transform: translateY(-3px);
+            border-color: #00c896;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        }
+        .anime-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 16px;
+        }
+        @keyframes appear {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: none; }
+        }
+        .appear { animation: appear 200ms ease-out both; }
+        @keyframes shimmer {
+            from { background-position: 200% 0; }
+            to { background-position: -200% 0; }
+        }
+        .shimmer {
+            background: linear-gradient(90deg, #1c2228 25%, #242c35 50%, #1c2228 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.2s linear infinite;
+        }
+        #grid-skeleton { display: none; }
+        #browse.htmx-request #grid-skeleton { display: grid; }
+        #browse.htmx-request #grid { display: none; }
+    </style>
+</head>
+<body class="bg-page text-primary font-sans min-h-screen flex flex-col">
+    <header class="border-b border-edge bg-surface/50">
+        <div class="max-w-[1200px] mx-auto px-6 h-14 flex items-center justify-between">
+            <a href="/" class="text-lg font-semibold tracking-tight">
+                Anime<span class="text-accent">List</span>
+            </a>
+            <nav class="flex items-center gap-6 text-sm text-secondary">
+                <a href="/" class="hover:text-primary transition-colors duration-150">Главная</a>
+                <a href="/users" class="hover:text-primary transition-colors duration-150">Пользователи</a>
+                {% if current_user %}
+                <a href="/me" class="hover:text-primary transition-colors duration-150">{{ current_user.username }}</a>
+                <form method="post" action="/logout">
+                    <button class="hover:text-primary transition-colors duration-150">Выйти</button>
+                </form>
+                {% else %}
+                <a href="/login" class="hover:text-primary transition-colors duration-150">Войти</a>
+                <a href="/register" class="text-accent hover:brightness-110 transition duration-150">Регистрация</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-[1200px] w-full mx-auto px-6 py-10">
+        {% block content %}{% endblock %}
+    </main>
+
+    <div x-data="{ toasts: [] }"
+         @toast.window="const t = { id: Date.now(), text: $event.detail.value };
+                        toasts.push(t);
+                        setTimeout(() => toasts = toasts.filter(x => x.id !== t.id), 2500)"
+         class="fixed bottom-5 right-5 z-50 space-y-2">
+        <template x-for="toast in toasts" :key="toast.id">
+            <div x-text="toast.text"
+                 class="appear bg-surface border border-edge rounded-md px-4 py-2.5 text-sm shadow-lg shadow-black/30"></div>
+        </template>
+    </div>
+
+    <footer class="border-t border-edge">
+        <div class="max-w-[1200px] mx-auto px-6 py-6 text-sm text-secondary">
+            AnimeList — трекер просмотренного аниме. Данные: Jikan API / MyAnimeList.
+        </div>
+    </footer>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

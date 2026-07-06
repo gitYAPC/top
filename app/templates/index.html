@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="mb-10">
+    <h1 class="text-3xl font-semibold mb-3">Твой список аниме</h1>
+    <p class="text-secondary max-w-xl mb-6">
+        Ищи тайтлы, отмечай статус просмотра и ставь оценки.
+    </p>
+    <input type="search" name="q" placeholder="Поиск аниме…" autocomplete="off"
+           hx-get="/search" hx-trigger="input changed delay:400ms" hx-target="#grid"
+           hx-indicator="#browse" hx-push-url="true"
+           class="w-full max-w-xl bg-surface border border-edge rounded-md px-4 py-2.5
+                  text-primary placeholder-secondary outline-none
+                  focus:border-accent transition-colors duration-150">
+</section>
+
+<section id="browse">
+    <h2 class="text-xl font-semibold mb-4">Популярное</h2>
+    <div id="grid">{% include "_grid.html" %}</div>
+    <div id="grid-skeleton" class="anime-grid">
+        {% for _ in range(12) %}
+        <div class="bg-surface border border-edge rounded-md overflow-hidden">
+            <div class="aspect-[2/3] shimmer"></div>
+            <div class="p-3 space-y-2">
+                <div class="h-3 shimmer rounded w-4/5"></div>
+                <div class="h-3 shimmer rounded w-2/5"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
