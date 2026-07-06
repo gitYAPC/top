@@ -54,8 +54,8 @@ async def search(db: Session, query: str) -> list[Anime]:
     return await _cached_list(db, f"q:{query.lower()}", lambda: anime_source.search(query))
 
 
-async def get_top(db: Session) -> list[Anime]:
-    return await _cached_list(db, "top", anime_source.top)
+async def get_top(db: Session, page: int = 1) -> list[Anime]:
+    return await _cached_list(db, f"top:{page}", lambda: anime_source.top(page))
 
 
 def _is_fresh(cached_at: datetime) -> bool:

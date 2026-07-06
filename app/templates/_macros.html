@@ -1,0 +1,29 @@
+{% macro anime_card(anime, delay) %}
+<a href="/anime/{{ anime.mal_id }}" class="appear card-hover block bg-surface border border-edge rounded-md overflow-hidden"
+   style="animation-delay: {{ delay }}ms">
+    <div class="aspect-[2/3] bg-edge/40">
+        {% if anime.poster_url %}
+        <img src="{{ anime.poster_url }}" alt="{{ anime.title }}" loading="lazy"
+             class="w-full h-full object-cover">
+        {% endif %}
+    </div>
+    <div class="p-3">
+        <p class="text-sm font-medium leading-snug line-clamp-2">{{ anime.title }}</p>
+        <p class="text-xs text-secondary mt-1.5 flex items-center gap-2">
+            {% if anime.year %}<span>{{ anime.year }}</span>{% endif %}
+            {% if anime.score_mal %}<span class="text-star">★ {{ '%.1f'|format(anime.score_mal) }}</span>{% endif %}
+        </p>
+    </div>
+</a>
+{% endmacro %}
+
+{% macro feed_sentinel(next_page) %}
+<div hx-get="/feed?page={{ next_page }}" hx-trigger="revealed" hx-swap="outerHTML" aria-hidden="true"
+     class="bg-surface border border-edge rounded-md overflow-hidden">
+    <div class="aspect-[2/3] shimmer"></div>
+    <div class="p-3 space-y-2">
+        <div class="h-3 shimmer rounded w-4/5"></div>
+        <div class="h-3 shimmer rounded w-2/5"></div>
+    </div>
+</div>
+{% endmacro %}

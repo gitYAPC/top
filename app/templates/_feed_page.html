@@ -1,0 +1,3 @@
+{% from "_macros.html" import anime_card, feed_sentinel %}
+{% for anime in anime_list %}{{ anime_card(anime, loop.index0 * 30) }}{% endfor %}
+{% if has_more %}{{ feed_sentinel(page + 1) }}{% endif %}

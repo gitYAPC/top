@@ -10,17 +10,28 @@ from app.services import lists, profile
 router = APIRouter()
 
 
+def _feed_context(anime_list: list, page: int) -> dict:
+    return {"anime_list": anime_list, "feed": True, "page": page, "has_more": len(anime_list) == 25}
+
+
 @router.get("/")
 async def index(request: Request, db: Session = Depends(get_db)):
     anime_list = await anime_service.get_top(db)
-    return templates.TemplateResponse(request, "index.html", {"anime_list": anime_list})
+    return templates.TemplateResponse(request, "index.html", _feed_context(anime_list, 1))
+
+
+@router.get("/feed")
+async def feed(request: Request, page: int = 1, db: Session = Depends(get_db)):
+    anime_list = await anime_service.get_top(db, page)
+    return templates.TemplateResponse(request, "_feed_page.html", _feed_context(anime_list, page))
 
 
 @router.get("/search")
 async def search(request: Request, q: str = "", db: Session = Depends(get_db)):
-    anime_list = await anime_service.search(db, q) if q.strip() else await anime_service.get_top(db)
     template = "_grid.html" if request.headers.get("HX-Request") else "search.html"
-    return templates.TemplateResponse(request, template, {"anime_list": anime_list, "q": q})
+    if q.strip():
+        return templates.TemplateResponse(request, template, {"anime_list": await anime_service.search(db, q), "q": q})
+    return templates.TemplateResponse(request, template, {**_feed_context(await anime_service.get_top(db), 1), "q": q})
 
 
 @router.get("/anime/{mal_id}")

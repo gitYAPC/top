@@ -56,6 +56,6 @@ async def get_details(mal_id: int) -> dict:
     return _normalize(data)
 
 
-async def top() -> list[dict]:
-    data = await _get("/top/anime", {"limit": PAGE_LIMIT})
+async def top(page: int = 1) -> list[dict]:
+    data = await _get("/top/anime", {"limit": PAGE_LIMIT, "page": page})
     return [_normalize(item) for item in data]
