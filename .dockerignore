@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+anime.db
+.git/
+.claude/
+.gitignore
+compose.yml
+Caddyfile
+CLAUDE.md
